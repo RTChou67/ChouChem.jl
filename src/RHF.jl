@@ -1,43 +1,4 @@
-module RHF_DIIS
-using LinearAlgebra
-export DIISController, insert!, extrapolate
-
-struct DIISController
-	DIISMax::Int
-	FockList::Vector{Matrix{Float64}}
-	ErrList::Vector{Matrix{Float64}}
-	function DIISController(MaxSize::Int = 10)
-		new(MaxSize, [], [])
-	end
-end
-
-function insert!(DC::DIISController, Fock::Matrix{Float64}, ErrMat::Matrix{Float64})
-	push!(DC.FockList, Fock)
-	push!(DC.ErrList, ErrMat)
-	if length(DC.ErrList) > DC.DIISMax
-		popfirst!(DC.FockList)
-		popfirst!(DC.ErrList)
-	end
-end
-
-function extrapolate(DC::DIISController)
-	n = length(DC.ErrList)
-	if n < 2
-		return DC.FockList[end]
-	end
-	B = [dot(DC.ErrList[i], DC.ErrList[j]) for i in 1:n, j in 1:n]
-	A = -ones(Float64, n + 1, n + 1)
-	A[1:n, 1:n] = B
-	A[n+1, n+1] = 0.0
-	b = zeros(Float64, n + 1)
-	b[n+1] = -1.0
-	coeffs = pinv(A) * b
-	c = coeffs[1:n]
-	FockNext = sum(c[i] * DC.FockList[i] for i in 1:n)
-	return FockNext
-end
-
-end
+using ChemAlgebra: DIISManager, diis_update!
 
 struct RHFResults
 	Molecule::Vector{Atom}
@@ -70,15 +31,16 @@ function RHF_SCF(Molecule::Vector{Atom}, Charge::Int,	Multiplicity::Int; MaxIter
 	p = sortperm(E_guess)
 	C = X * C_guess[:, p]
 	P = 2 * C[:, 1:Nocc] * C[:, 1:Nocc]'
-	DIIS = RHF_DIIS.DIISController()
+	DIIS = DIISManager{Matrix{Float64}}(10)
 	println("--- Starting SCF Iterations (with DIIS) ---")
 	Etot_old = 0.0
 	for i in 1:MaxIter
 		G = [sum(P[k, l] * (ERI[i, j, k, l] - 0.5 * ERI[i, l, k, j]) for k in 1:BNum, l in 1:BNum) for i in 1:BNum, j in 1:BNum]
 		F_current = Hcore + G
 		ErrMat = X' * (F_current * P * S - S * P * F_current) * X
-		RHF_DIIS.insert!(DIIS, F_current, ErrMat)
-		F = RHF_DIIS.extrapolate(DIIS)
+		
+		F = diis_update!(DIIS, F_current, ErrMat)
+		
 		Fprime = X' * F * X
 		E, Cprime = eigen(Fprime)
 		p = sortperm(E)

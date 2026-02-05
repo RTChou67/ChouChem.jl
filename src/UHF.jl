@@ -1,54 +1,4 @@
-module UHF_DIIS
-using LinearAlgebra
-export DIISController, insert!, extrapolate
-
-struct DIISController
-	DIISMax::Int
-	FockListAlpha::Vector{Matrix{Float64}}
-	FockListBeta::Vector{Matrix{Float64}}
-	ErrList::Vector{Matrix{Float64}}
-
-	function DIISController(MaxSize::Int = 10)
-		new(MaxSize, [], [], [])
-	end
-end
-
-function insert!(DC::DIISController, FockAlpha::Matrix{Float64}, FockBeta::Matrix{Float64}, ErrMat::Matrix{Float64})
-	push!(DC.FockListAlpha, FockAlpha)
-	push!(DC.FockListBeta, FockBeta)
-	push!(DC.ErrList, ErrMat)
-	if length(DC.ErrList) > DC.DIISMax
-		popfirst!(DC.FockListAlpha)
-		popfirst!(DC.FockListBeta)
-		popfirst!(DC.ErrList)
-	end
-end
-
-function extrapolate(DC::DIISController)
-	n = length(DC.ErrList)
-	if n < 2
-		return DC.FockListAlpha[end], DC.FockListBeta[end]
-	end
-
-	B = [dot(DC.ErrList[i], DC.ErrList[j]) for i in 1:n, j in 1:n]
-
-	A = -ones(Float64, n + 1, n + 1)
-	A[1:n, 1:n] = B
-	A[n+1, n+1] = 0.0
-
-	b = zeros(Float64, n + 1)
-	b[n+1] = -1.0
-
-	coeffs = pinv(A) * b
-	c = coeffs[1:n]
-
-	FockAlphaNext = sum(c[i] * DC.FockListAlpha[i] for i in 1:n)
-	FockBetaNext = sum(c[i] * DC.FockListBeta[i] for i in 1:n)
-
-	return FockAlphaNext, FockBetaNext
-end
-
-end
+using ChemAlgebra: DIISManager, diis_update!
 
 struct UHFResults
 	Molecule::Vector{Atom}
@@ -93,7 +43,7 @@ function UHF_SCF(Molecule::Vector{Atom}, charge::Int, multiplicity::Int; MaxIter
 	PAlpha = C[:, 1:ENumAlpha] * C[:, 1:ENumAlpha]'
 	PBeta = C[:, 1:ENumBeta] * C[:, 1:ENumBeta]'
 
-	DIIS = UHF_DIIS.DIISController()
+	DIIS = DIISManager{Tuple{Matrix{Float64}, Matrix{Float64}}}(10)
 
 	println("\n--- Starting SCF Iterations ---")
 	Etot_old = 0.0
@@ -107,10 +57,9 @@ function UHF_SCF(Molecule::Vector{Atom}, charge::Int, multiplicity::Int; MaxIter
 
 		ErrMat = X' * (FAlpha_current * PAlpha * S - S * PAlpha * FAlpha_current) * X +
 				 X' * (FBeta_current * PBeta * S - S * PBeta * FBeta_current) * X
-
-		UHF_DIIS.insert!(DIIS, FAlpha_current, FBeta_current, ErrMat)
-
-		FAlpha, FBeta = UHF_DIIS.extrapolate(DIIS)
+		
+		ZeroMat = zeros(Float64, size(ErrMat))
+		FAlpha, FBeta = diis_update!(DIIS, (FAlpha_current, FBeta_current), (ErrMat, ZeroMat))
 
 		EAlphaVec, CprimeAlpha = eigen(X' * FAlpha * X)
 		EBetaVec, CprimeBeta = eigen(X' * FBeta * X)

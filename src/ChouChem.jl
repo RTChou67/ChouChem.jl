@@ -7,14 +7,8 @@ using BenchmarkTools
 using Dates
 using SpecialFunctions
 using SparseArrays
-
-include("Definitions.jl")
-
-
-include("CalcS.jl")
-include("CalcT.jl")
-include("CalcV.jl")
-include("CalcG.jl")
+using LibJuInt
+using ChemAlgebra
 
 include("GetBasisList.jl")
 
@@ -31,6 +25,7 @@ export RunRMPn
 export RunUCI
 export RunRCI
 
+# Re-export from LibJuInt
 export Atom, Basis, CGTF, PGTF
 export generate_basis_list
 export Sij, Tij, Vij, Gijkl
