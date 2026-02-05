@@ -17,6 +17,7 @@ include("UHF.jl")
 include("Functions.jl")
 include("RMPn.jl")
 include("CI.jl")
+include("CCSD.jl")
 
 
 export RunRHF
@@ -24,6 +25,7 @@ export RunUHF
 export RunRMPn
 export RunUCI
 export RunRCI
+export RunRCCSD
 
 # Re-export from LibJuInt
 export Atom, Basis, CGTF, PGTF

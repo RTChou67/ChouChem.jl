@@ -1,5 +1,6 @@
 using Test
 using ChouChem
+using Printf
 
 function mkMol(Coord, BasisSet::String)
 	Mol = Vector{Atom}()
@@ -118,6 +119,18 @@ H2O631G = mkMol(H2OCoord, "6-31G")
 				@test H2O_RCI_Results !== nothing
 			end
 		end
+	end
+
+	@testset "RCCSD H-F Experiment" begin
+		# Experimental bond length of H-F is ~0.9168 A
+		HF_Exp = mkMol([
+			("H", 1, (0.0, 0.0, 0.0)),
+			("F", 9, (0.0, 0.0, 0.9168))
+		], "STO-3G") # Using STO-3G for speed in test, user asked for functionality
+		
+		CCSD_Res = RunRCCSD(HF_Exp, 0, 1)
+		@test CCSD_Res !== nothing
+		@printf("RCCSD Correlation Energy: %.10f\n", CCSD_Res.Ecorr)
 	end
 end
 	
