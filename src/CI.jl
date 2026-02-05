@@ -229,7 +229,7 @@ function CalcUCI(SCF_Results::UHFResults, MaxExcitation::Int)
 	)
 end
 
-function RunUCI(MolInAng::Vector{Atom}, Charge::Int, Multiplicity::Int, MaxExcitation::Int)
+function RunUCI(MolInAng::Vector{Atom}, Charge::Int, Multiplicity::Int, MaxExcitation::Int; MaxIter = 128, Threshold = 1e-8)
 	TStart = time_ns()
 	Bohr2Ang = 0.52917721092
 	Molecule = [Atom(atom.symbol, atom.Z, atom.basis_set, atom.position ./ Bohr2Ang) for atom in MolInAng]
@@ -240,7 +240,7 @@ function RunUCI(MolInAng::Vector{Atom}, Charge::Int, Multiplicity::Int, MaxExcit
 	end
 	println("---------------------------\n")
 
-	SCF_Results = UHF_SCF(Molecule, Charge, Multiplicity, MaxIter = 128, Threshold = 1e-8)
+	SCF_Results = UHF_SCF(Molecule, Charge, Multiplicity, MaxIter = MaxIter, Threshold = Threshold)
 	if isnothing(SCF_Results)
 		error("UHF calculation did not converge. Aborting.")
 		return

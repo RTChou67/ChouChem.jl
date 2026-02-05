@@ -17,7 +17,9 @@ include("UHF.jl")
 include("Functions.jl")
 include("RMPn.jl")
 include("CI.jl")
-include("CCSD.jl")
+include("CCSDSolver.jl")
+include("RCCSD.jl")
+include("UCCSD.jl")
 
 export Atom, Basis, CGTF, PGTF
 export Sij, Tij, Vij, Gijkl

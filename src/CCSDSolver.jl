@@ -1,4 +1,4 @@
-export RunRCCSD
+export spin_orbital_ccsd, CCSDResults
 
 struct CCSDResults
 	EtotHF::Float64
@@ -242,15 +242,4 @@ V_oooo = V[1:No, 1:No, 1:No, 1:No]
     
     println("\nCCSD failed to converge.")
     return nothing
-end
-
-function RunRCCSD(MolInAng::Vector{Atom}, Charge::Int, Multiplicity::Int)
-    println("--- Starting RCCSD Calculation ---")
-    println("Running RHF...")
-    RHF_Res = ChouChem.RunRHF(MolInAng, Charge, Multiplicity)
-    
-    println("Converting RHF to Spin-Orbitals...")
-    UHF_Res = ChouChem.RHF2UHF(RHF_Res)
-    
-    return spin_orbital_ccsd(UHF_Res)
 end
