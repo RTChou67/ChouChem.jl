@@ -22,6 +22,5 @@ include("RCCSD.jl")
 include("UCCSD.jl")
 
 export Atom, Basis, CGTF, PGTF
-export Sij, Tij, Vij, Gijkl
 
 end

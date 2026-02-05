@@ -21,7 +21,7 @@ end
 
 
 
-function UHF_SCF(Molecule::Vector{Atom}, charge::Int, multiplicity::Int; MaxIter = 100, Threshold = 1e-8)
+function UHF_SCF(Molecule::Vector{Atom}, charge::Int, multiplicity::Int, MaxIter = 128, Threshold = 1e-8)
 	BasisSet = generate_basis_list(Molecule)
 	BNum = length(BasisSet)
 	ENum = sum(atom.Z for atom in Molecule) - charge
