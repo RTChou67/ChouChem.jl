@@ -1,3 +1,5 @@
+export RunUCI, RunRCI
+
 struct CIResults
 	EtotHF::Float64
 	EtotCI::Float64
@@ -26,12 +28,10 @@ function GenCISpace_Optimized(RefDet::Int, NSpinOrb::Int, MaxExcit::Int)
 
 	total_dets = 1
 	if MaxExcit >= 1
-		;
-		total_dets += n_singles;
+		total_dets += n_singles
 	end
 	if MaxExcit >= 2
-		;
-		total_dets += n_doubles;
+		total_dets += n_doubles
 	end
 
 	Dets = Vector{Int}(undef, total_dets)
@@ -134,8 +134,7 @@ function CalcUCI(SCF_Results::UHFResults, MaxExcitation::Int)
 			n_diff_bits = count_ones(diff)
 
 			if n_diff_bits > 4
-				;
-				continue;
+				continue
 			end
 
 			val = 0.0
@@ -171,17 +170,17 @@ function CalcUCI(SCF_Results::UHFResults, MaxExcitation::Int)
 				val *= phase
 
 			elseif n_diff_bits == 4
-				holes = Di & diff
-				p = trailing_zeros(holes) + 1
-				q = trailing_zeros(holes & ~(one(Int) << (p-1))) + 1
+			holes = Di & diff
+			p = trailing_zeros(holes) + 1
+			q = trailing_zeros(holes & ~(one(Int) << (p-1))) + 1
 
-				parts = Dj & diff
-				r = trailing_zeros(parts) + 1
-				s = trailing_zeros(parts & ~(one(Int) << (r-1))) + 1
+			parts = Dj & diff
+			r = trailing_zeros(parts) + 1
+			s = trailing_zeros(parts & ~(one(Int) << (r-1))) + 1
 
-				phase = get_phase_double(Di, Dj, p, q, r, s)
+			phase = get_phase_double(Di, Dj, p, q, r, s)
 
-				val = (V_so[p, r, q, s] - V_so[p, s, q, r]) * phase
+			val = (V_so[p, r, q, s] - V_so[p, s, q, r]) * phase
 			end
 
 			if abs(val) > 1e-12

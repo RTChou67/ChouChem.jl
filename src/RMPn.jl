@@ -1,5 +1,7 @@
 antisym(G_MO, p, q, r, s) = G_MO[p, q, r, s] - G_MO[p, q, s, r]
 
+export RunRMPn
+
 function TransG(G_AO::Array{Float64, 4}, C::Matrix{Float64})
     NBasis = size(C, 1) 
     NMO = size(C, 2)

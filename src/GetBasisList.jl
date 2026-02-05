@@ -1,10 +1,9 @@
-using Printf
-
 const LoadedBasisSets = Dict{String, Dict{Int, Vector{CGTF}}}()
 const PROJECT_DIR = joinpath(@__DIR__, "..")
 const BASIS_SET_DIR = joinpath(PROJECT_DIR, "Basis")
 const BasisNameToFile = include(joinpath(BASIS_SET_DIR, "BasisList.jl"))
 
+export generate_basis_list
 
 function get_basis_set(name::String)
 	if haskey(LoadedBasisSets, name)
@@ -52,7 +51,7 @@ function generate_basis_list(molecule::Vector{Atom})
 		end
 		println("  -> Added $(length(element_data)) basis functions for '$(atom.symbol)'.")
 	end
-	println("--- Basis function generation complete ---\n")
+	println("--- Basis function generation complete ---
+")
 	return BasisList
 end
-

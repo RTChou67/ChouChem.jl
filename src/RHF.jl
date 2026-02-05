@@ -1,4 +1,4 @@
-using ChemAlgebra: DIISManager, diis_update!
+export RunRHF, RHFResults, RHF_SCF
 
 struct RHFResults
 	Molecule::Vector{Atom}
@@ -57,7 +57,7 @@ function RHF_SCF(Molecule::Vector{Atom}, Charge::Int,	Multiplicity::Int; MaxIter
 		Etot_old = Etot
 		if delta_E < Threshold && delta_P < Threshold
 			println("\nSCF converged in $i iterations.")
-			@printf("\n--- Final Energy Results ---\n")
+			@printf("\n--- Final Energy Results ---")
 			@printf("Electronic Energy = %.10f Hartree\n", Ee)
 			@printf("Nuclear Repulsion = %.10f Hartree\n", VNN)
 			@printf("Total Energy      = %.10f Hartree\n", Etot)
@@ -73,7 +73,7 @@ function RunRHF(MolInAng::Vector{Atom}, Charge::Int, Multiplicity::Int)
 	TStart = time_ns()
 	Bohr2Ang = 0.52917721092
 	Molecule = [Atom(atom.symbol, atom.Z, atom.basis_set, atom.position ./ Bohr2Ang) for atom in MolInAng]
-	@printf("\n--- Molecular Structure ---\n")
+	@printf("\n--- Molecular Structure ---")
 	for atom in MolInAng
 		@printf("Atom: %-2s at (%8.4f, %8.4f, %8.4f) Å\n", atom.symbol, atom.position...)
 	end

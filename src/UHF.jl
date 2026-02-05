@@ -1,4 +1,4 @@
-using ChemAlgebra: DIISManager, diis_update!
+export RunUHF, UHFResults, UHF_SCF
 
 struct UHFResults
 	Molecule::Vector{Atom}
@@ -16,7 +16,6 @@ struct UHFResults
 	VNN::Float64
 	Etot::Float64
 end
-
 
 
 

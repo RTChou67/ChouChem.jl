@@ -1,3 +1,5 @@
+export CalcMatrices, RHF2UHF
+
 function CalcMatrices(BasisSet, Molecule)
 	BNum = length(BasisSet)
 	TimeS1=time_ns()
@@ -18,8 +20,6 @@ function CalcMatrices(BasisSet, Molecule)
 	println("Calculation for ERI Tensor took $( (TimeERI2-TimeERI1)/1e6 ) ms")
 	return S, T, V, ERI
 end
-
-
 
 function RHF2UHF(rhf::RHFResults)
 	return UHFResults(
@@ -81,7 +81,6 @@ function get_phase_double(det_i::Int, det_j::Int, p::Int, q::Int, r::Int, s::Int
 
 	return iseven(pos_p + pos_q + pos_r + pos_s) ? 1.0 : -1.0
 end
-
 
 function TransERI_blas(ERI_AO::Array{Float64, 4}, c1::Matrix{Float64}, c2::Matrix{Float64}, c3::Matrix{Float64}, c4::Matrix{Float64}, ONum::Int)
 	N = ONum
