@@ -200,8 +200,17 @@ function CalcUCI(SCF_Results::UHFResults, MaxExcitation::Int)
 	@time CI_Matrix = sparse(I_idx, J_idx, V_val, Ndet, Ndet)
 	println("Sparse matrix construction complete.")
 	println("Diagonalizing CI Matrix ...")
-	n_roots = min(Ndet, 30)
-	@time E_CI_raw, C_CI = Davidson(CI_Matrix, n_roots)
+	
+	if Ndet <= 2000
+		CI_Dense = Matrix(CI_Matrix)
+		evals_full, evecs_full = eigen(Symmetric(CI_Dense))
+		E_CI_raw = evals_full[1:min(Ndet, 30)]
+		C_CI = evecs_full[:, 1:min(Ndet, 30)]
+	else
+		n_roots = min(Ndet, 30)
+		@time E_CI_raw, C_CI = Davidson(CI_Matrix, n_roots)
+	end
+
 	println("CI Matrix diagonalization complete.")
 
 	Ee_CI = E_CI_raw[1]

@@ -21,7 +21,7 @@ end
 
 
 
-function UHF_SCF(Molecule::Vector{Atom}, charge::Int, multiplicity::Int, MaxIter = 128, Threshold = 1e-8)
+function UHF_SCF(Molecule::Vector{Atom}, charge::Int, multiplicity::Int; MaxIter = 128, Threshold = 1e-8)
 	BasisSet = generate_basis_list(Molecule)
 	BNum = length(BasisSet)
 	ENum = sum(atom.Z for atom in Molecule) - charge
@@ -98,7 +98,7 @@ function UHF_SCF(Molecule::Vector{Atom}, charge::Int, multiplicity::Int, MaxIter
 end
 
 
-function RunUHF(MolInAng::Vector{Atom}, Charge::Int, Multiplicity::Int; MaxIter = 128, Threshold = 1e-8)
+function RunUHF(MolInAng::Vector{Atom}, Charge::Int, Multiplicity::Int; MaxIter = 100, Threshold = 1e-8)
 	TStart=time_ns()
 	Bohr2Ang = 0.52917721092
 	Molecule = [Atom(atom.symbol, atom.Z, atom.basis_set, atom.position ./ Bohr2Ang) for atom in MolInAng]
@@ -107,7 +107,7 @@ function RunUHF(MolInAng::Vector{Atom}, Charge::Int, Multiplicity::Int; MaxIter 
 		@printf("Atom: %-2s at (%8.4f, %8.4f, %8.4f) Å\n", atom.symbol, atom.position...)
 	end
 	println("---------------------------\n")
-	SCF_Results=UHF_SCF(Molecule, Charge, Multiplicity, MaxIter = MaxIter, Threshold = Threshold)
+	SCF_Results=UHF_SCF(Molecule, Charge, Multiplicity, MaxIter=MaxIter, Threshold=Threshold)
 	if isnothing(SCF_Results)
 		error("UHF calculation did not converge. Aborting.")
 		return
