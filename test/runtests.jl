@@ -2,8 +2,6 @@ using Test
 using ChouChem
 using Printf
 
-# --- Helper Functions ---
-
 function mkMol(Coord, BasisSet::String)
 	Mol = Vector{Atom}()
 	for atom in Coord
@@ -28,7 +26,6 @@ function write_g16_input(filename, method_g16, basis_g16, charge, mult, coords)
 	end
 end
 
-# --- Data Definitions ---
 
 HFCoord = [
 	("H", 1, (0.000, 0.000, 0.000)),
@@ -40,30 +37,19 @@ H2OCoord = [
 	("H", 1, (0.0000, 1.0000, 0.8000)),
 	("H", 1, (0.0000, -1.0000, 0.8000)),
 ]
-
-# Define Molecules: (Name, Coords)
 Molecules = [
 	("HF", HFCoord),
 	("H2O", H2OCoord)
 ]
 
 BasisSets = ["STO-3G", "6-31G"]
-
-# Define Charges/Mults and associated methods to test
-# Structure: (Charge, Mult, List of Methods)
-# Method Entry: (TestName, Function, Args, G16Keyword)
-# Args is a tuple of additional args passed to the function AFTER Mol, Charge, Mult.
-# Note: Keyword args like MaxIter are handled inside the loop logic or wrapper.
-
 TestConfigs = [
-	# Neutral Singlet (Closed Shell)
 	(0, 1, [
 		("RHF",   RunRHF,   (),                 "RHF"),
 		("RMP2",  RunRMPn,  (2,),               "MP2"),
 		("RCI",   RunRCI,   (2,),               "CISD"),
 		("RCCSD", RunRCCSD, (),                 "CCSD")
 	]),
-	# Cation Doublet (Open Shell)
 	(1, 2, [
 		("UHF",   RunUHF,   (),                 "UHF"),
 		("UCI",   RunUCI,   (2,),               "CISD"),
@@ -105,14 +91,11 @@ GaussianRef = Dict{Tuple{String, String, String, String}, Float64}(
     ("H2O", "6-31G", "1", "UCCSD") => -75.6213992971
 )
 
-# --- Main Test Loop ---
-
 @testset "ChouChem Tests" begin
 	for (mol_name, coords) in Molecules
 		@testset "$mol_name" begin
 			for basis in BasisSets
 				@testset "$basis" begin
-					# Prepare Molecule Object
 					MolObj = mkMol(coords, basis)
 
 					for (charge, mult, methods) in TestConfigs
@@ -120,19 +103,7 @@ GaussianRef = Dict{Tuple{String, String, String, String}, Float64}(
 						@testset "$charge_str (Q=$charge, M=$mult)" begin
 							for (method_name, func, args, g16_key) in methods
 								@testset "$method_name" begin
-									# 1. Run Julia Test
-									# Handle kwargs dynamically if needed, mostly for MaxIter/Threshold
-									# The Run* functions usually take (Mol, Charge, Mult, [Args...]; Kwargs...)
 									
-									# Special handling for args to match function signatures
-									# RunRHF(Mol, C, M)
-									# RunUHF(Mol, C, M; MaxIter, Threshold)
-									# RunRMPn(Mol, C, M, n)
-									# RunUCI(Mol, C, M, MaxExcitation; MaxIter...)
-									# RunRCI(Mol, C, M, MaxExcitation)
-									# RunRCCSD(Mol, C, M)
-									# RunUCCSD(Mol, C, M; MaxIter)
-
 									local result = nothing
 									try
 										if method_name == "RHF"
@@ -152,19 +123,10 @@ GaussianRef = Dict{Tuple{String, String, String, String}, Float64}(
 									end
 								catch e
 									println("Error running $method_name for $mol_name/$basis: $e")
-									# Allow failure for expensive methods on large basis if strictly needed, 
-									# but here we expect success.
 									throw(e)
 								end
 
 									@test result !== nothing
-									
-									# Extract Energy
-									# Different result structs have different fields for Total Energy
-									# RHF/UHF: Etot
-									# RMPn: EtotMPn
-									# CI: EtotCI
-									# CCSD: EtotCCSD
 									
 									energy = 0.0
 									if hasproperty(result, :Etot)
@@ -178,8 +140,6 @@ GaussianRef = Dict{Tuple{String, String, String, String}, Float64}(
 								end
 									
 									push!(TestResults, (mol_name, basis, "$charge", method_name, energy))
-
-									# 2. Generate G16 Input
 								g16_filename = joinpath(G16_Dir, "$(mol_name)_$(basis)_Q$(charge)_$(method_name).gjf")
 								write_g16_input(g16_filename, g16_key, basis, charge, mult, coords)
 								end
@@ -192,7 +152,6 @@ GaussianRef = Dict{Tuple{String, String, String, String}, Float64}(
 	end
 end
 
-# --- Summary Output ---
 
 println("\n" * "="^120)
 println(" "^45 * "TEST RESULTS SUMMARY")
