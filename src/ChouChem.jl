@@ -22,5 +22,6 @@ include("RCCSD.jl")
 include("UCCSD.jl")
 
 export Atom, Basis, CGTF, PGTF
+export CCSDResults, RunRCCSD, RunUCCSD
 
 end
