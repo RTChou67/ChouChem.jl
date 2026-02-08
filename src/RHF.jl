@@ -15,7 +15,7 @@ struct RHFResults
 	Etot::Float64
 end
 
-function RHF_SCF(Molecule::Vector{Atom}, Charge::Int,	Multiplicity::Int; MaxIter = 100, Threshold = 1e-8)
+function RHF_SCF(Molecule::Vector{Atom}, Charge::Int, Multiplicity::Int; MaxIter = 128, Threshold = 1e-7)
 	BasisSet = generate_basis_list(Molecule)
 	BNum = length(BasisSet)
 	ENum = sum(atom.Z for atom in Molecule) - Charge
@@ -38,9 +38,9 @@ function RHF_SCF(Molecule::Vector{Atom}, Charge::Int,	Multiplicity::Int; MaxIter
 		G = [sum(P[k, l] * (ERI[i, j, k, l] - 0.5 * ERI[i, l, k, j]) for k in 1:BNum, l in 1:BNum) for i in 1:BNum, j in 1:BNum]
 		F_current = Hcore + G
 		ErrMat = X' * (F_current * P * S - S * P * F_current) * X
-		
+
 		F = diis_update!(DIIS, F_current, ErrMat)
-		
+
 		Fprime = X' * F * X
 		E, Cprime = eigen(Fprime)
 		p = sortperm(E)

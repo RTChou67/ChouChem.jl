@@ -6,7 +6,7 @@ function RunRCCSD(Molecule::Vector{Atom}, Charge::Int, Multiplicity::Int; MaxIte
 	return RunRCCSD(rhf; maxiter = MaxIter, e_conv = Threshold, r_conv = r_conv, max_diis = max_diis)
 end
 
-function RunRCCSD(rhf::RHFResults; maxiter = 100, e_conv = 1e-7, r_conv = 1e-7, max_diis = 8)
+function RunRCCSD(rhf::RHFResults; maxiter = 100, e_conv = 1e-7, r_conv = 1e-7, max_diis = 6)
 	println("--- Starting RCCSD Calculation ---")
 
 	norb = size(rhf.C, 1)

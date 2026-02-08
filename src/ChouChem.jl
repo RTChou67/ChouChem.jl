@@ -19,6 +19,7 @@ include("RMPn.jl")
 include("CI.jl")
 include("CCSDSolver.jl")
 include("RCCSD.jl")
+include("UCCSD.jl")
 
 export Atom, Basis, CGTF, PGTF
 
