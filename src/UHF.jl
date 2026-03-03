@@ -42,6 +42,8 @@ function UHF_SCF(Molecule::Vector{Atom}, charge::Int, multiplicity::Int; MaxIter
 	PAlpha = C[:, 1:ENumAlpha] * C[:, 1:ENumAlpha]'
 	PBeta = C[:, 1:ENumBeta] * C[:, 1:ENumBeta]'
 
+	VNN = sum(Molecule[i].Z * Molecule[j].Z / norm(Molecule[i].position .- Molecule[j].position) for i in 1:length(Molecule) for j in (i+1):length(Molecule))
+
 	DIIS = DIISManager{Tuple{Matrix{Float64}, Matrix{Float64}}}(10)
 
 	println("\n--- Starting SCF Iterations ---")
@@ -74,7 +76,6 @@ function UHF_SCF(Molecule::Vector{Atom}, charge::Int, multiplicity::Int; MaxIter
 		PnewAlpha = CAlpha[:, 1:ENumAlpha] * CAlpha[:, 1:ENumAlpha]'
 		PnewBeta = CBeta[:, 1:ENumBeta] * CBeta[:, 1:ENumBeta]'
 
-		VNN = sum(Molecule[i].Z * Molecule[j].Z / norm(Molecule[i].position .- Molecule[j].position) for i in 1:length(Molecule) for j in (i+1):length(Molecule))
 		Ee = 0.5 * sum(PnewAlpha .* (Hcore + FAlpha)) + 0.5 * sum(PnewBeta .* (Hcore + FBeta))
 		Etot = Ee + VNN
 		delta_E = abs(Etot - Etot_old)
