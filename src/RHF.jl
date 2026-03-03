@@ -31,6 +31,7 @@ function RHF_SCF(Molecule::Vector{Atom}, Charge::Int, Multiplicity::Int; MaxIter
 	p = sortperm(E_guess)
 	C = X * C_guess[:, p]
 	P = 2 * C[:, 1:Nocc] * C[:, 1:Nocc]'
+	VNN = sum(Molecule[i].Z * Molecule[j].Z / norm(Molecule[i].position .- Molecule[j].position) for i in 1:length(Molecule) for j in (i+1):length(Molecule))
 	DIIS = DIISManager{Matrix{Float64}}(10)
 	println("--- Starting SCF Iterations (with DIIS) ---")
 	Etot_old = 0.0
@@ -47,7 +48,6 @@ function RHF_SCF(Molecule::Vector{Atom}, Charge::Int, Multiplicity::Int; MaxIter
 		E = E[p]
 		C = X * Cprime[:, p]
 		Pnew = 2 * C[:, 1:Nocc] * C[:, 1:Nocc]'
-		VNN = sum(Molecule[i].Z * Molecule[j].Z / norm(Molecule[i].position .- Molecule[j].position) for i in 1:length(Molecule) for j in (i+1):length(Molecule))
 		Ee = 0.5 * sum(Pnew .* (Hcore + F))
 		Etot = Ee + VNN
 		delta_E = abs(Etot - Etot_old)
