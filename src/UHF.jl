@@ -68,8 +68,8 @@ function UHF_SCF(Molecule::Vector{Atom}, charge::Int, multiplicity::Int; MaxIter
 		EAlphaVec = EAlphaVec[pAlpha]
 		EBetaVec = EBetaVec[pBeta]
 
-		CAlpha = X * CprimeAlpha[:, sortperm(EAlphaVec)]
-		CBeta = X * CprimeBeta[:, sortperm(EBetaVec)]
+		CAlpha = X * CprimeAlpha[:, pAlpha]
+		CBeta = X * CprimeBeta[:, pBeta]
 
 		PnewAlpha = CAlpha[:, 1:ENumAlpha] * CAlpha[:, 1:ENumAlpha]'
 		PnewBeta = CBeta[:, 1:ENumBeta] * CBeta[:, 1:ENumBeta]'
