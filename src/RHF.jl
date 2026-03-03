@@ -48,7 +48,7 @@ function RHF_SCF(Molecule::Vector{Atom}, Charge::Int, Multiplicity::Int; MaxIter
 		C = X * Cprime[:, p]
 		Pnew = 2 * C[:, 1:Nocc] * C[:, 1:Nocc]'
 		VNN = sum(Molecule[i].Z * Molecule[j].Z / norm(Molecule[i].position .- Molecule[j].position) for i in 1:length(Molecule) for j in (i+1):length(Molecule))
-		Ee = 0.5 * sum(P .* (Hcore + F))
+		Ee = 0.5 * sum(Pnew .* (Hcore + F))
 		Etot = Ee + VNN
 		delta_E = abs(Etot - Etot_old)
 		delta_P = sqrt(sum((Pnew - P) .^ 2))
