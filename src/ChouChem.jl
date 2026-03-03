@@ -11,6 +11,7 @@ using LibJuInt
 using ChemAlgebra
 
 include("GetBasisList.jl")
+include("Utils.jl")
 
 include("RHF.jl")
 include("UHF.jl")
