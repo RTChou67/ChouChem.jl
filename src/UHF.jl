@@ -75,7 +75,7 @@ function UHF_SCF(Molecule::Vector{Atom}, charge::Int, multiplicity::Int; MaxIter
 		PnewBeta = CBeta[:, 1:ENumBeta] * CBeta[:, 1:ENumBeta]'
 
 		VNN = sum(Molecule[i].Z * Molecule[j].Z / norm(Molecule[i].position .- Molecule[j].position) for i in 1:length(Molecule) for j in (i+1):length(Molecule))
-		Ee = 0.5 * sum(PAlpha .* (Hcore + FAlpha)) + 0.5 * sum(PBeta .* (Hcore + FBeta))
+		Ee = 0.5 * sum(PnewAlpha .* (Hcore + FAlpha)) + 0.5 * sum(PnewBeta .* (Hcore + FBeta))
 		Etot = Ee + VNN
 		delta_E = abs(Etot - Etot_old)
 		delta_P = max(sqrt(sum((PnewAlpha - PAlpha) .^ 2)), sqrt(sum((PnewBeta - PBeta) .^ 2)))
